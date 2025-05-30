@@ -1,0 +1,30 @@
+{
+  "name": "projeto_livraria",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/app.js",
+    "dev": "ts-node src/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m9ts/Projeto_Livraria.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/m9ts/Projeto_Livraria/issues"
+  },
+  "homepage": "https://github.com/m9ts/Projeto_Livraria#readme",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.28",
+    "express": "^5.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
