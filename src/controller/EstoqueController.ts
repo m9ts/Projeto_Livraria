@@ -30,14 +30,14 @@ export class EstoqueController {
 
   public buscarLivroId(req: Request, res: Response): void {
     try {
-      const { livro_id } = req.params;
+      const { codigo } = req.params;
 
-      if (!livro_id) {
-        res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
+      if (!codigo) {
+        res.status(400).json({ mensagem: "Código do estoque é obrigatório!" });
         return;
       }
 
-      const estoque = this.estoqueService.buscarLivroId(Number(livro_id));
+      const estoque = this.estoqueService.buscarLivroId(Number(codigo));
 
       if (!estoque) {
         res.status(404).json({ mensagem: "Estoque não encontrado!" });
@@ -69,15 +69,15 @@ export class EstoqueController {
 
   public atualizar(req: Request, res: Response): void {
     try {
-      const { livro_id } = req.params;
+      const { codigo } = req.params;
       const { quantidade, quantidade_emprestimo } = req.body;
 
-      if (!livro_id) {
-        res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
+      if (!codigo) {
+        res.status(400).json({ mensagem: "Código do estoque é obrigatório!" });
         return;
       }
 
-      const sucesso = this.estoqueService.atualizar(Number(livro_id), quantidade, quantidade_emprestimo);
+      const sucesso = this.estoqueService.atualizar(Number(codigo), quantidade, quantidade_emprestimo);
 
       if (!sucesso) {
         res.status(404).json({ mensagem: "Estoque não encontrado!" });
@@ -93,14 +93,14 @@ export class EstoqueController {
 
   public remover(req: Request, res: Response): void {
     try {
-      const { livro_id } = req.params;
+      const { codigo } = req.params;
 
-      if (!livro_id) {
-        res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
+      if (!codigo) {
+        res.status(400).json({ mensagem: "Código do estoque é obrigatório!" });
         return;
       }
 
-      const sucesso = this.estoqueService.remover(Number(livro_id));
+      const sucesso = this.estoqueService.remover(Number(codigo));
 
       if (!sucesso) {
         res.status(404).json({ mensagem: "Estoque não encontrado ou não pode ser removido!" });
