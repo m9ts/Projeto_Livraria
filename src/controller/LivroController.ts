@@ -11,14 +11,14 @@ export class LivroController {
 
   public cadastrar(req: Request, res: Response): void {
     try {
-      const { ISBN, titulo, autor, editora, edicao, categoria_id } = req.body;
+      const { isbn, titulo, autor, editora, edicao, categoria_id } = req.body;
 
-      if (!ISBN || !titulo || !autor || !editora || !edicao || !categoria_id) {
+      if (!isbn || !titulo || !autor || !editora || !edicao || !categoria_id) {
         res.status(400).json({ mensagem: "Todos os campos são obrigatórios!" });
         return;
       }
 
-      const novoLivro = new Livro(Date.now(), titulo, autor, editora, edicao, ISBN, categoria_id);
+      const novoLivro = new Livro(Date.now(), titulo, autor, editora, edicao, isbn, categoria_id);
       const sucesso = this.livroService.cadastrar(novoLivro);
 
       if (!sucesso) {
@@ -35,14 +35,14 @@ export class LivroController {
 
   public buscarISBN(req: Request, res: Response): void {
     try {
-      const { ISBN } = req.params;
+      const { isbn } = req.params;
 
-      if (!ISBN) {
+      if (!isbn) {
         res.status(400).json({ mensagem: "O ISBN do livro é obrigatório!" });
         return;
       }
 
-      const livro = this.livroService.buscarISBN(ISBN);
+      const livro = this.livroService.buscarISBN(isbn);
 
       if (!livro) {
         res.status(404).json({ mensagem: "Livro não encontrado!" });
@@ -68,15 +68,15 @@ export class LivroController {
 
   public atualizar(req: Request, res: Response): void {
     try {
-      const { ISBN } = req.params;
+      const { isbn } = req.params;
       const { titulo, autor, editora, edicao, categoria_id } = req.body;
 
-      if (!ISBN) {
+      if (!isbn) {
         res.status(400).json({ mensagem: "O ISBN do livro é obrigatório!" });
         return;
       }
 
-      const sucesso = this.livroService.atualizar(ISBN, titulo, autor, editora, edicao, categoria_id);
+      const sucesso = this.livroService.atualizar(isbn, titulo, autor, editora, edicao, categoria_id);
 
       if (!sucesso) {
         res.status(404).json({ mensagem: "Livro não encontrado!" });
@@ -92,14 +92,14 @@ export class LivroController {
 
   public remover(req: Request, res: Response): void {
     try {
-      const { ISBN } = req.params;
+      const { isbn } = req.params;
 
-      if (!ISBN) {
+      if (!isbn) {
         res.status(400).json({ mensagem: "O ISBN do livro é obrigatório!" });
         return;
       }
 
-      const sucesso = this.livroService.remover(ISBN);
+      const sucesso = this.livroService.remover(isbn);
 
       if (!sucesso) {
         res.status(404).json({ mensagem: "Livro não encontrado ou não pode ser removido!" });
