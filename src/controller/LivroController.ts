@@ -59,6 +59,12 @@ export class LivroController {
   public listar(req: Request, res: Response): void {
     try {
       const livros = this.livroService.listar();
+
+      if (livros.length === 0) {
+        res.status(200).json({ mensagem: "Nenhum livro cadastrado no sistema." });
+        return;
+      }
+
       res.status(200).json(livros);
     } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
