@@ -44,6 +44,12 @@ export class EmprestimoController {
     public listar(req: Request, res: Response): void {
         try {
             const emprestimos = this.emprestimoService.listar();
+
+            if (emprestimos.length === 0) {
+                res.status(200).json({ mensagem: "Nenhum empréstimo cadastrado no sistema." });
+                return;
+            }
+
             res.status(200).json(emprestimos);
         } catch (error) {
             res.status(500).json({ mensagem: "Erro ao listar empréstimos!", erro: error });
