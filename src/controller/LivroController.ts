@@ -18,7 +18,7 @@ export class LivroController {
         return;
       }
 
-      const novoLivro = new Livro(Date.now(), ISBN, titulo, autor, editora, edicao, categoria_id);
+      const novoLivro = new Livro(Date.now(), titulo, autor, editora, edicao, ISBN, categoria_id);
       const sucesso = this.livroService.cadastrar(novoLivro);
 
       if (!sucesso) {
