@@ -29,15 +29,14 @@ export class EmprestimoController {
                 dataDevolucao
             );
 
-            const sucesso = this.emprestimoService.cadastrar(novoEmprestimo);
-            if (!sucesso) {
+            if (!this.emprestimoService.cadastrar(novoEmprestimo)) {
                 res.status(400).json({ mensagem: "Empréstimo inválido ou usuário não permitido!" });
                 return;
             }
 
             res.status(201).json({ mensagem: "Empréstimo registrado com sucesso!", data_devolucao: dataDevolucao });
         } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao cadastrar empréstimo!", erro: error });
+            res.status(500).json({ mensagem: "Erro ao cadastrar empréstimo!", erro: error instanceof Error ? error.message : error });
         }
     }
 
@@ -45,14 +44,11 @@ export class EmprestimoController {
         try {
             const emprestimos = this.emprestimoService.listar();
 
-            if (emprestimos.length === 0) {
-                res.status(200).json({ mensagem: "Nenhum empréstimo cadastrado no sistema." });
-                return;
-            }
-
-            res.status(200).json(emprestimos);
+            res.status(emprestimos.length === 0 ? 200 : 200).json(
+                emprestimos.length === 0 ? { mensagem: "Nenhum empréstimo cadastrado no sistema." } : emprestimos
+            );
         } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao listar empréstimos!", erro: error });
+            res.status(500).json({ mensagem: "Erro ao listar empréstimos!", erro: error instanceof Error ? error.message : error });
         }
     }
 
@@ -61,14 +57,11 @@ export class EmprestimoController {
             const { id } = req.params;
             const emprestimo = this.emprestimoService.buscarPorId(Number(id));
 
-            if (!emprestimo) {
-                res.status(404).json({ mensagem: "Empréstimo não encontrado!" });
-                return;
-            }
-
-            res.status(200).json(emprestimo);
+            res.status(emprestimo ? 200 : 404).json(
+                emprestimo ? emprestimo : { mensagem: "Empréstimo não encontrado!" }
+            );
         } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao buscar empréstimo!", erro: error });
+            res.status(500).json({ mensagem: "Erro ao buscar empréstimo!", erro: error instanceof Error ? error.message : error });
         }
     }
 
@@ -82,32 +75,27 @@ export class EmprestimoController {
                 return;
             }
 
-            const sucesso = this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega));
-
-            if (!sucesso) {
-                res.status(404).json({ mensagem: "Empréstimo não encontrado!" });
-                return;
-            }
-
-            res.status(200).json({ mensagem: "Data de entrega atualizada com sucesso!" });
+            res.status(this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega)) ? 200 : 404).json(
+                this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega))
+                    ? { mensagem: "Data de entrega atualizada com sucesso!" }
+                    : { mensagem: "Empréstimo não encontrado!" }
+            );
         } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao atualizar data de entrega!", erro: error });
+            res.status(500).json({ mensagem: "Erro ao atualizar data de entrega!", erro: error instanceof Error ? error.message : error });
         }
     }
 
     public remover(req: Request, res: Response): void {
         try {
             const { id } = req.params;
-            const sucesso = this.emprestimoService.remover(Number(id));
 
-            if (!sucesso) {
-                res.status(404).json({ mensagem: "Empréstimo não encontrado!" });
-                return;
-            }
-
-            res.status(200).json({ mensagem: "Empréstimo removido com sucesso!" });
+            res.status(this.emprestimoService.remover(Number(id)) ? 200 : 404).json(
+                this.emprestimoService.remover(Number(id))
+                    ? { mensagem: "Empréstimo removido com sucesso!" }
+                    : { mensagem: "Empréstimo não encontrado!" }
+            );
         } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao remover empréstimo!", erro: error });
+            res.status(500).json({ mensagem: "Erro ao remover empréstimo!", erro: error instanceof Error ? error.message : error });
         }
     }
 }
