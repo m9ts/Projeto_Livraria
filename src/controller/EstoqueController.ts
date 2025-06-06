@@ -31,6 +31,7 @@ export class EstoqueController {
   public buscarLivroId(req: Request, res: Response): void {
     try {
       const { livro_id } = req.params;
+
       if (!livro_id) {
         res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
         return;
@@ -42,6 +43,7 @@ export class EstoqueController {
         res.status(404).json({ mensagem: "Estoque não encontrado!" });
         return;
       }
+
       res.status(200).json(estoque);
     } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
@@ -52,6 +54,12 @@ export class EstoqueController {
   public listar(req: Request, res: Response): void {
     try {
       const estoques = this.estoqueService.listar();
+
+      if (estoques.length === 0) {
+        res.status(200).json({ mensagem: "Nenhum registro de estoque cadastrado no sistema." });
+        return;
+      }
+
       res.status(200).json(estoques);
     } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
