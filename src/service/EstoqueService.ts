@@ -16,30 +16,30 @@ export class EstoqueService {
     return true;
   }
 
-  buscarLivroId(livro_id: number): Estoque | undefined {
-    return this.estoqueRepository.buscarLivroId(livro_id) ?? undefined;
-}
+  buscarLivroId(codigo: number): Estoque | undefined {
+    return this.estoqueRepository.buscarLivroId(codigo) ?? undefined;
+  }
 
   listar(): Estoque[] {
     return this.estoqueRepository.listar();
   }
 
-  atualizar(livro_id: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
-    const estoque = this.estoqueRepository.buscarLivroId(livro_id);
+  atualizar(codigo: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
+    const estoque = this.estoqueRepository.buscarLivroId(codigo);
     if (!estoque) return false;
 
-    return this.estoqueRepository.atualizar(livro_id, quantidade, quantidade_emprestimo);
+    return this.estoqueRepository.atualizar(codigo, quantidade, quantidade_emprestimo);
   }
 
-  verificarDisponibilidade(livro_id: number): boolean {
-    const estoque = this.estoqueRepository.buscarLivroId(livro_id);
+  verificarDisponibilidade(codigo: number): boolean {
+    const estoque = this.estoqueRepository.buscarLivroId(codigo);
     return estoque ? estoque.quantidade - estoque.quantidade_emprestimo > 0 : false;
   }
 
-  remover(livro_id: number): boolean {
-    const estoque = this.estoqueRepository.buscarLivroId(livro_id);
+  remover(codigo: number): boolean {
+    const estoque = this.estoqueRepository.buscarLivroId(codigo);
     if (!estoque || estoque.quantidade_emprestimo > 0) return false;
 
-    return this.estoqueRepository.remover(livro_id);
+    return this.estoqueRepository.remover(codigo);
   }
 }
