@@ -9,73 +9,100 @@ export class EstoqueController {
     this.estoqueService = new EstoqueService();
   }
 
-  cadastrar(req: Request, res: Response): Response {
+  public cadastrar(req: Request, res: Response): void {
     try {
       const { livro_id, quantidade, quantidade_emprestimo } = req.body;
 
-      const novoEstoque = new Estoque(Date.now(), livro_id, quantidade, quantidade_emprestimo ?? 0);
+      if (!livro_id || !quantidade) {
+        res.status(400).json({ mensagem: "Livro ID e quantidade são obrigatórios!" });
+        return;
+      }
 
+      const novoEstoque = new Estoque(Date.now(), livro_id, quantidade, quantidade_emprestimo ?? 0);
       this.estoqueService.cadastrar(novoEstoque);
-      return res.status(201).json({ mensagem: "Registro de estoque cadastrado com sucesso!" });
-    } catch (error: unknown) {
+
+      res.status(201).json({ mensagem: "Registro de estoque cadastrado com sucesso!" });
+    } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      return res.status(500).json({ mensagem: "Erro ao cadastrar estoque!", erro: mensagemErro });
+      res.status(500).json({ mensagem: "Erro ao cadastrar estoque!", erro: mensagemErro });
     }
   }
 
-  buscarLivroId(req: Request, res: Response): Response {
+  public buscarLivroId(req: Request, res: Response): void {
     try {
       const { livro_id } = req.params;
+      if (!livro_id) {
+        res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
+        return;
+      }
+
       const estoque = this.estoqueService.buscarLivroId(Number(livro_id));
 
       if (!estoque) {
-        return res.status(404).json({ mensagem: "Estoque não encontrado!" });
+        res.status(404).json({ mensagem: "Estoque não encontrado!" });
+        return;
       }
-      return res.status(200).json(estoque);
-    } catch (error: unknown) {
+      res.status(200).json(estoque);
+    } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      return res.status(500).json({ mensagem: "Erro ao buscar estoque!", erro: mensagemErro });
+      res.status(500).json({ mensagem: "Erro ao buscar estoque!", erro: mensagemErro });
     }
   }
 
-  listar(req: Request, res: Response): Response {
+  public listar(req: Request, res: Response): void {
     try {
       const estoques = this.estoqueService.listar();
-      return res.status(200).json(estoques);
-    } catch (error: unknown) {
+      res.status(200).json(estoques);
+    } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      return res.status(500).json({ mensagem: "Erro ao listar estoques!", erro: mensagemErro });
+      res.status(500).json({ mensagem: "Erro ao listar estoques!", erro: mensagemErro });
     }
   }
 
-  atualizar(req: Request, res: Response): Response {
+  public atualizar(req: Request, res: Response): void {
     try {
       const { livro_id } = req.params;
       const { quantidade, quantidade_emprestimo } = req.body;
+
+      if (!livro_id) {
+        res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
+        return;
+      }
+
       const sucesso = this.estoqueService.atualizar(Number(livro_id), quantidade, quantidade_emprestimo);
 
       if (!sucesso) {
-        return res.status(404).json({ mensagem: "Estoque não encontrado!" });
+        res.status(404).json({ mensagem: "Estoque não encontrado!" });
+        return;
       }
-      return res.status(200).json({ mensagem: "Estoque atualizado com sucesso!" });
-    } catch (error: unknown) {
+
+      res.status(200).json({ mensagem: "Estoque atualizado com sucesso!" });
+    } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      return res.status(500).json({ mensagem: "Erro ao atualizar estoque!", erro: mensagemErro });
+      res.status(500).json({ mensagem: "Erro ao atualizar estoque!", erro: mensagemErro });
     }
   }
 
-  remover(req: Request, res: Response): Response {
+  public remover(req: Request, res: Response): void {
     try {
       const { livro_id } = req.params;
+
+      if (!livro_id) {
+        res.status(400).json({ mensagem: "Livro ID é obrigatório!" });
+        return;
+      }
+
       const sucesso = this.estoqueService.remover(Number(livro_id));
 
       if (!sucesso) {
-        return res.status(404).json({ mensagem: "Estoque não encontrado ou não pode ser removido!" });
+        res.status(404).json({ mensagem: "Estoque não encontrado ou não pode ser removido!" });
+        return;
       }
-      return res.status(200).json({ mensagem: "Registro de estoque removido com sucesso!" });
-    } catch (error: unknown) {
+
+      res.status(200).json({ mensagem: "Registro de estoque removido com sucesso!" });
+    } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      return res.status(500).json({ mensagem: "Erro ao remover estoque!", erro: mensagemErro });
+      res.status(500).json({ mensagem: "Erro ao remover estoque!", erro: mensagemErro });
     }
   }
 }
