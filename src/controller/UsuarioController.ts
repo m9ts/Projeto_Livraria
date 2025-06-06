@@ -59,6 +59,12 @@ export class UsuarioController {
   public listar(req: Request, res: Response): void {
     try {
       const usuarios = this.usuarioService.listarTodos();
+
+      if (usuarios.length === 0) {
+        res.status(200).json({ mensagem: "Nenhum usuário cadastrado no sistema." });
+        return;
+      }
+
       res.status(200).json(usuarios);
     } catch (error) {
       const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
