@@ -11,9 +11,9 @@ export class EmprestimoController {
 
     public cadastrar(req: Request, res: Response): void {
         try {
-            const { usuario_id, estoque_id, data_emprestimo } = req.body;
+            const { usuario_id, codigo, data_emprestimo } = req.body;
 
-            if (!usuario_id || !estoque_id || !data_emprestimo) {
+            if (!usuario_id || !codigo || !data_emprestimo) {
                 res.status(400).json({ mensagem: "Todos os campos são obrigatórios!" });
                 return;
             }
@@ -24,7 +24,7 @@ export class EmprestimoController {
             const novoEmprestimo = new Emprestimo(
                 Date.now(),
                 usuario_id,
-                estoque_id,
+                codigo,
                 new Date(data_emprestimo),
                 dataDevolucao
             );

@@ -9,8 +9,9 @@ export class EstoqueService {
   }
 
   cadastrar(estoque: Estoque): boolean {
-    const existeEstoque = this.estoqueRepository.buscarCodigo(estoque.codigo);
-    if (existeEstoque) return false;
+    if (this.estoqueRepository.buscarCodigo(estoque.codigo)) {
+      return false;
+    }
 
     this.estoqueRepository.cadastrar(estoque);
     return true;
@@ -38,7 +39,14 @@ export class EstoqueService {
 
   remover(codigo: number): boolean {
     const estoque = this.estoqueRepository.buscarCodigo(codigo);
-    if (!estoque || estoque.quantidade_emprestimo > 0) return false;
+
+    if (!estoque) {
+      return false;
+    }
+
+    if (estoque.quantidade_emprestimo > 0) {
+      return false;
+    }
 
     return this.estoqueRepository.remover(codigo);
   }
