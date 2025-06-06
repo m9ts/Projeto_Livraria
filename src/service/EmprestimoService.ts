@@ -18,10 +18,10 @@ export class EmprestimoService {
         const usuario = this.usuarioService.buscarCPF(emprestimo.usuario_id);
         if (!usuario || !usuario.ativo || usuario.suspensao) return false;
 
-        const estoque = this.estoqueService.buscarLivroId(emprestimo.estoque_id);
+        const estoque = this.estoqueService.buscarCodigo(emprestimo.codigo);
         if (!estoque || estoque.quantidade <= estoque.quantidade_emprestimo) return false;
 
-        let diasEmprestimo = usuario.categoria_id === 1 ? 40 : usuario.categoria_id === 2 && usuario.curso_id === estoque.livro_id ? 30 : 15;
+        let diasEmprestimo = usuario.categoria_id === 1 ? 40 : usuario.categoria_id === 2 && usuario.curso_id === estoque.codigo ? 30 : 15;
 
         const dataDevolucao = new Date();
         dataDevolucao.setDate(dataDevolucao.getDate() + diasEmprestimo);
@@ -38,8 +38,8 @@ export class EmprestimoService {
         return this.emprestimoRepository.buscarUsuarioId(usuario_id);
     }
 
-    buscarEstoqueId(estoque_id: number): Emprestimo[] {
-        return this.emprestimoRepository.buscarEstoqueId(estoque_id);
+    buscarCodigo(codigo: number): Emprestimo[] {
+        return this.emprestimoRepository.buscarCodigo(codigo);
     }
 
     listar(): Emprestimo[] {

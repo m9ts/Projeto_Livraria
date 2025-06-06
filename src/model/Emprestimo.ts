@@ -2,7 +2,7 @@ export class Emprestimo {
     constructor(
         public id: number,
         public usuario_id: string, 
-        public estoque_id: number, 
+        public codigo: number, 
         public data_emprestimo: Date,
         public data_devolucao: Date, 
         public data_entrega?: Date,

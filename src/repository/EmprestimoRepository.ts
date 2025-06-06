@@ -5,7 +5,7 @@ export class EmprestimoRepository {
 
     cadastrar(emprestimo: Emprestimo): boolean {
         for (const e of this.emprestimos) {
-            if (e.usuario_id === emprestimo.usuario_id && e.estoque_id === emprestimo.estoque_id && !e.data_entrega) {
+            if (e.usuario_id === emprestimo.usuario_id && e.codigo === emprestimo.codigo && !e.data_entrega) {
                 return false; 
             }
         }
@@ -33,10 +33,10 @@ export class EmprestimoRepository {
         return resultado;
     }
 
-    buscarEstoqueId(estoque_id: number): Emprestimo[] {
+    buscarCodigo(codigo: number): Emprestimo[] {
         const resultado: Emprestimo[] = [];
         for (const e of this.emprestimos) {
-            if (e.estoque_id === estoque_id) {
+            if (e.codigo === codigo) {
                 resultado.push(e);
             }
         }
