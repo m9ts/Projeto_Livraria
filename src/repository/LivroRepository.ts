@@ -7,16 +7,16 @@ export class LivroRepository {
         this.livros.push(livro);
     }
 
-    buscarISBN(isbn: string): Livro | undefined {
-        return this.livros.find(livro => livro.ISBN === isbn);
+    buscarISBN(ISBN: string): Livro | undefined {
+        return this.livros.find(livro => livro.ISBN === ISBN);
     }
 
     listar(): Livro[] {
         return this.livros;
     }
 
-    atualizar(isbn: string, titulo?: string, autor?: string, editora?: string, edicao?: string, categoria_id?: number): boolean {
-        const livro = this.buscarISBN(isbn);
+    atualizar(ISBN: string, titulo?: string, autor?: string, editora?: string, edicao?: string, categoria_id?: number): boolean {
+        const livro = this.buscarISBN(ISBN);
         if (!livro) return false;
 
         if (titulo !== undefined) livro.titulo = titulo;
@@ -28,8 +28,8 @@ export class LivroRepository {
         return true;
     }
 
-    remover(isbn: string): boolean {
-        const index = this.livros.findIndex(livro => livro.ISBN === isbn);
+    remover(ISBN: string): boolean {
+        const index = this.livros.findIndex(livro => livro.ISBN === ISBN);
         if (index === -1) return false;
 
         this.livros.splice(index, 1);
