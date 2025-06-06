@@ -1,39 +1,69 @@
 import { Emprestimo } from "../model/Emprestimo";
 
 export class EmprestimoRepository {
-  private emprestimos: Emprestimo[] = [];
+    private emprestimos: Emprestimo[] = [];
 
-  cadastrar(emprestimo: Emprestimo): void {
-    this.emprestimos.push(emprestimo);
-  }
+    cadastrar(emprestimo: Emprestimo): boolean {
+        for (const e of this.emprestimos) {
+            if (e.usuario_id === emprestimo.usuario_id && e.estoque_id === emprestimo.estoque_id && !e.data_entrega) {
+                return false; 
+            }
+        }
 
-  buscarUsuarioId(usuario_id: number): Emprestimo | undefined {
-    return this.emprestimos.find(emprestimo => emprestimo.usuario_id === usuario_id);
-  }
+        this.emprestimos.push(emprestimo);
+        return true;
+    }
 
-  buscarEstoqueId(estoque_id: number): Emprestimo | undefined {
-    return this.emprestimos.find(emprestimo => emprestimo.estoque_id === estoque_id);
-  }
+    buscarPorId(id: number): Emprestimo | undefined {
+        for (const e of this.emprestimos) {
+            if (e.id === id) {
+                return e;
+            }
+        }
+        return undefined;
+    }
 
-  listar(): Emprestimo[] {
-    return this.emprestimos;
-  }
+    buscarUsuarioId(usuario_id: string): Emprestimo[] {
+        const resultado: Emprestimo[] = [];
+        for (const e of this.emprestimos) {
+            if (e.usuario_id === usuario_id) {
+                resultado.push(e);
+            }
+        }
+        return resultado;
+    }
 
-  atualizarDataEntrega(id: number, data_entrega: Date): boolean {
-    const emprestimo = this.emprestimos.find(e => e.id === id);
-    if (!emprestimo) return false;
+    buscarEstoqueId(estoque_id: number): Emprestimo[] {
+        const resultado: Emprestimo[] = [];
+        for (const e of this.emprestimos) {
+            if (e.estoque_id === estoque_id) {
+                resultado.push(e);
+            }
+        }
+        return resultado;
+    }
 
-    emprestimo.data_entrega = data_entrega;
-    emprestimo.atraso_dias = emprestimo.calcularAtraso(); 
+    listar(): Emprestimo[] {
+        return this.emprestimos;
+    }
 
-    return true;
-  }
+    atualizarDataEntrega(id: number, data_entrega: Date): boolean {
+        const emprestimo = this.buscarPorId(id);
+        if (!emprestimo) return false;
 
-  remover(id: number): boolean {
-    const index = this.emprestimos.findIndex(e => e.id === id);
-    if (index === -1) return false;
+        emprestimo.data_entrega = data_entrega;
+        emprestimo.atraso_dias = emprestimo.calcularAtraso();
 
-    this.emprestimos.splice(index, 1);
-    return true;
-  }
+        return true;
+    }
+
+    remover(id: number): boolean {
+        for (let i = 0; i < this.emprestimos.length; i++) {
+            if (this.emprestimos[i].id === id) {
+                this.emprestimos.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
 }
