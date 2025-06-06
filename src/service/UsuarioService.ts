@@ -20,8 +20,8 @@ export class UsuarioService {
     return this.usuarioRepository.buscarCPF(cpf);
   }
 
-  listar(): Usuario[] {
-    return this.usuarioRepository.listar();
+  listarTodos(): Usuario[] {
+    return this.usuarioRepository.listarTodos();
   }
 
   atualizar(cpf: string, nome?: string, ativo?: boolean, categoria_id?: number, curso_id?: number, suspensao?: Date): boolean {
