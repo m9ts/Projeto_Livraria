@@ -7,16 +7,16 @@ export class EstoqueRepository {
     this.estoques.push(estoque);
   }
 
-  buscarLivroId(livro_id: number): Estoque | undefined {
-    return this.estoques.find(estoque => estoque.livro_id === livro_id);
+  buscarCodigo(codigo: number): Estoque | undefined {
+    return this.estoques.find(estoque => estoque.codigo === codigo);
   }
 
   listar(): Estoque[] {
     return this.estoques;
   }
 
-  atualizar(livro_id: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
-    const estoque = this.buscarLivroId(livro_id);
+  atualizar(codigo: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
+    const estoque = this.buscarCodigo(codigo);
     if (!estoque) return false;
 
     if (quantidade !== undefined) estoque.quantidade = quantidade;
@@ -25,8 +25,8 @@ export class EstoqueRepository {
     return true;
   }
 
-  remover(livro_id: number): boolean {
-    const index = this.estoques.findIndex(estoque => estoque.livro_id === livro_id);
+  remover(codigo: number): boolean {
+    const index = this.estoques.findIndex(estoque => estoque.codigo === codigo);
     if (index === -1) return false;
 
     this.estoques.splice(index, 1);

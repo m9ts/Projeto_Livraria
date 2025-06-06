@@ -11,14 +11,14 @@ export class EstoqueController {
 
   public cadastrar(req: Request, res: Response): void {
     try {
-      const { livro_id, quantidade, quantidade_emprestimo } = req.body;
+      const { codigo, quantidade, quantidade_emprestimo } = req.body;
 
-      if (!livro_id || !quantidade) {
-        res.status(400).json({ mensagem: "Livro ID e quantidade são obrigatórios!" });
+      if (!codigo || !quantidade) {
+        res.status(400).json({ mensagem: "Código do estoque e quantidade são obrigatórios!" });
         return;
       }
 
-      const novoEstoque = new Estoque(Date.now(), livro_id, quantidade, quantidade_emprestimo ?? 0);
+      const novoEstoque = new Estoque(Date.now(), codigo, quantidade, quantidade_emprestimo ?? 0);
       this.estoqueService.cadastrar(novoEstoque);
 
       res.status(201).json({ mensagem: "Registro de estoque cadastrado com sucesso!" });
@@ -28,7 +28,7 @@ export class EstoqueController {
     }
   }
 
-  public buscarLivroId(req: Request, res: Response): void {
+  public buscarCodigo(req: Request, res: Response): void {
     try {
       const { codigo } = req.params;
 
@@ -37,7 +37,7 @@ export class EstoqueController {
         return;
       }
 
-      const estoque = this.estoqueService.buscarLivroId(Number(codigo));
+      const estoque = this.estoqueService.buscarCodigo(Number(codigo));
 
       if (!estoque) {
         res.status(404).json({ mensagem: "Estoque não encontrado!" });

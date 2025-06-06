@@ -9,15 +9,15 @@ export class EstoqueService {
   }
 
   cadastrar(estoque: Estoque): boolean {
-    const existeEstoque = this.estoqueRepository.buscarLivroId(estoque.livro_id);
+    const existeEstoque = this.estoqueRepository.buscarCodigo(estoque.codigo);
     if (existeEstoque) return false;
 
     this.estoqueRepository.cadastrar(estoque);
     return true;
   }
 
-  buscarLivroId(codigo: number): Estoque | undefined {
-    return this.estoqueRepository.buscarLivroId(codigo) ?? undefined;
+  buscarCodigo(codigo: number): Estoque | undefined {
+    return this.estoqueRepository.buscarCodigo(codigo) ?? undefined;
   }
 
   listar(): Estoque[] {
@@ -25,19 +25,19 @@ export class EstoqueService {
   }
 
   atualizar(codigo: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
-    const estoque = this.estoqueRepository.buscarLivroId(codigo);
+    const estoque = this.estoqueRepository.buscarCodigo(codigo);
     if (!estoque) return false;
 
     return this.estoqueRepository.atualizar(codigo, quantidade, quantidade_emprestimo);
   }
 
   verificarDisponibilidade(codigo: number): boolean {
-    const estoque = this.estoqueRepository.buscarLivroId(codigo);
+    const estoque = this.estoqueRepository.buscarCodigo(codigo);
     return estoque ? estoque.quantidade - estoque.quantidade_emprestimo > 0 : false;
   }
 
   remover(codigo: number): boolean {
-    const estoque = this.estoqueRepository.buscarLivroId(codigo);
+    const estoque = this.estoqueRepository.buscarCodigo(codigo);
     if (!estoque || estoque.quantidade_emprestimo > 0) return false;
 
     return this.estoqueRepository.remover(codigo);

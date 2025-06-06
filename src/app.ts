@@ -28,7 +28,7 @@ app.delete("/library/livros/:isbn", livroController.remover.bind(livroController
 
 app.post("/library/estoque", estoqueController.cadastrar.bind(estoqueController));
 app.get("/library/estoque", estoqueController.listar.bind(estoqueController));
-app.get("/library/estoque/:codigo", estoqueController.buscarLivroId.bind(estoqueController));
+app.get("/library/estoque/:codigo", estoqueController.buscarCodigo.bind(estoqueController));
 app.put("/library/estoque/:codigo", estoqueController.atualizar.bind(estoqueController));
 app.delete("/library/estoque/:codigo", estoqueController.remover.bind(estoqueController));
 
