@@ -64,6 +64,12 @@ export class EmprestimoService {
     }
 
     remover(id: number): boolean {
+        const emprestimo = this.buscarPorId(id);
+        if (!emprestimo) return false;
+
+        const usuario = this.usuarioService.buscarCPF(emprestimo.usuario_id);
+        if (!usuario || usuario.suspensao) return false; 
+
         return this.emprestimoRepository.remover(id);
     }
 }
