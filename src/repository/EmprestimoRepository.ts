@@ -10,7 +10,7 @@ export class EmprestimoRepository {
             }
         }
 
-        emprestimo.id = Date.now(); 
+        emprestimo.id = Date.now();
         this.emprestimos.push(emprestimo);
         return true;
     }
@@ -36,9 +36,8 @@ export class EmprestimoRepository {
         if (!emprestimo) return false;
 
         emprestimo.data_entrega = data_entrega;
-
         if (emprestimo.data_devolucao && data_entrega > emprestimo.data_devolucao) {
-            const atraso = Math.ceil((data_entrega.getTime() - emprestimo.data_devolucao.getTime()) / (1000 * 60 * 60 * 24));
+            const atraso = (data_entrega.getTime() - emprestimo.data_devolucao.getTime()) / (1000 * 60 * 60 * 24);
             emprestimo.atraso_dias = atraso;
         }
 

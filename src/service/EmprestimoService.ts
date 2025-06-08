@@ -10,8 +10,8 @@ export class EmprestimoService {
 
     constructor() {
         this.emprestimoRepository = new EmprestimoRepository();
-        this.usuarioService = new UsuarioService();
-        this.estoqueService = new EstoqueService();
+        this.usuarioService = UsuarioService.getInstancia(); 
+        this.estoqueService = EstoqueService.getInstancia(); 
     }
 
     cadastrar(emprestimo: Emprestimo): boolean {
@@ -26,11 +26,9 @@ export class EmprestimoService {
         }
 
         const emprestimosAtuais = this.buscarUsuarioId(emprestimo.usuario_id);
-
         if (usuario.categoria_id === 1 && emprestimosAtuais.length >= 5) {
             return false;
         }
-
         if (usuario.categoria_id === 2 && emprestimosAtuais.length >= 3) {
             return false;
         }
@@ -42,11 +40,9 @@ export class EmprestimoService {
             diasEmprestimo = 30;
         }
 
-        const dataDevolucao = new Date();
-        dataDevolucao.setDate(dataDevolucao.getDate() + diasEmprestimo);
-        emprestimo.data_devolucao = dataDevolucao;
-
-        emprestimo.id = Date.now(); 
+        emprestimo.id = Date.now();
+        emprestimo.data_devolucao = new Date();
+        emprestimo.data_devolucao.setDate(emprestimo.data_devolucao.getDate() + diasEmprestimo);
 
         return this.emprestimoRepository.cadastrar(emprestimo);
     }
@@ -71,21 +67,7 @@ export class EmprestimoService {
         const emprestimo = this.buscarPorId(id);
         if (!emprestimo) return false;
 
-        const sucesso = this.emprestimoRepository.atualizarDataEntrega(id, data_entrega);
-
-        if (sucesso && emprestimo.atraso_dias) {
-            const usuario = this.usuarioService.buscarCPF(emprestimo.usuario_id);
-            if (usuario) {
-                usuario.suspensao = new Date();
-                usuario.suspensao.setDate(usuario.suspensao.getDate() + emprestimo.atraso_dias * 3);
-
-                if ((usuario.suspensao.getTime() - new Date().getTime()) > 60 * 24 * 60 * 60 * 1000) {
-                    usuario.ativo = false;
-                }
-            }
-        }
-
-        return sucesso;
+        return this.emprestimoRepository.atualizarDataEntrega(id, data_entrega);
     }
 
     remover(id: number): boolean {

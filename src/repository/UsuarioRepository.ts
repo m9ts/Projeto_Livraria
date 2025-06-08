@@ -1,7 +1,17 @@
 import { Usuario } from "../model/Usuario";
 
 export class UsuarioRepository {
+  private static instancia: UsuarioRepository;
   private usuarios: Usuario[] = [];
+
+  private constructor() {}
+
+  static getInstancia(): UsuarioRepository {
+    if (!UsuarioRepository.instancia) {
+      UsuarioRepository.instancia = new UsuarioRepository();
+    }
+    return UsuarioRepository.instancia;
+  }
 
   cadastrar(usuario: Usuario): void {
     this.usuarios.push(usuario);

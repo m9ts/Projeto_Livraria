@@ -6,7 +6,7 @@ export class EstoqueController {
   private estoqueService: EstoqueService;
 
   constructor() {
-    this.estoqueService = new EstoqueService();
+    this.estoqueService = EstoqueService.getInstancia();
   }
 
   public cadastrar(req: Request, res: Response): void {

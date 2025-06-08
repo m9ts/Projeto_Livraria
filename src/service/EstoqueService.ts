@@ -2,10 +2,18 @@ import { EstoqueRepository } from "../repository/EstoqueRepository";
 import { Estoque } from "../model/Estoque";
 
 export class EstoqueService {
+  private static instancia: EstoqueService;
   private estoqueRepository: EstoqueRepository;
 
-  constructor() {
-    this.estoqueRepository = new EstoqueRepository();
+  private constructor() {
+    this.estoqueRepository = EstoqueRepository.getInstancia();
+  }
+
+  static getInstancia(): EstoqueService {
+    if (!EstoqueService.instancia) {
+      EstoqueService.instancia = new EstoqueService();
+    }
+    return EstoqueService.instancia;
   }
 
   cadastrar(estoque: Estoque): boolean {
@@ -18,7 +26,7 @@ export class EstoqueService {
   }
 
   buscarCodigo(codigo: number): Estoque | undefined {
-    return this.estoqueRepository.buscarCodigo(codigo) ?? undefined;
+    return this.estoqueRepository.buscarCodigo(codigo);
   }
 
   listar(): Estoque[] {
@@ -26,9 +34,6 @@ export class EstoqueService {
   }
 
   atualizar(codigo: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
-    const estoque = this.estoqueRepository.buscarCodigo(codigo);
-    if (!estoque) return false;
-
     return this.estoqueRepository.atualizar(codigo, quantidade, quantidade_emprestimo);
   }
 
@@ -38,10 +43,6 @@ export class EstoqueService {
   }
 
   remover(codigo: number): boolean {
-    const estoque = this.estoqueRepository.buscarCodigo(codigo);
-
-    if (!estoque || estoque.quantidade_emprestimo > 0) return false; 
-
     return this.estoqueRepository.remover(codigo);
   }
 }

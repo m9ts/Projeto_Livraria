@@ -2,20 +2,28 @@ import { UsuarioRepository } from "../repository/UsuarioRepository";
 import { Usuario } from "../model/Usuario";
 
 export class UsuarioService {
+  private static instancia: UsuarioService;
   private usuarioRepository: UsuarioRepository;
 
-  constructor() {
-    this.usuarioRepository = new UsuarioRepository();
+  private constructor() {
+    this.usuarioRepository = UsuarioRepository.getInstancia(); 
+  }
+
+  static getInstancia(): UsuarioService {
+    if (!UsuarioService.instancia) {
+      UsuarioService.instancia = new UsuarioService();
+    }
+    return UsuarioService.instancia;
   }
 
   cadastrar(usuario: Usuario): boolean {
-    if (usuario.cpf.length !== 11 || isNaN(Number(usuario.cpf))){
+    if (usuario.cpf.length !== 11 || isNaN(Number(usuario.cpf))) {
       return false;
     }
-    
     if (this.usuarioRepository.buscarCPF(usuario.cpf)) {
-      return false; 
+      return false;
     }
+
     this.usuarioRepository.cadastrar(usuario);
     return true;
   }

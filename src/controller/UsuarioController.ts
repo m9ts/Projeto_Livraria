@@ -6,7 +6,7 @@ export class UsuarioController {
   private usuarioService: UsuarioService;
 
   constructor() {
-    this.usuarioService = new UsuarioService();
+    this.usuarioService = UsuarioService.getInstancia();
   }
 
   public cadastrar(req: Request, res: Response): void {

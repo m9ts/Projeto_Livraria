@@ -1,7 +1,17 @@
 import { Estoque } from "../model/Estoque";
 
 export class EstoqueRepository {
+  private static instancia: EstoqueRepository;
   private estoques: Estoque[] = [];
+
+  private constructor() {}
+
+  static getInstancia(): EstoqueRepository {
+    if (!EstoqueRepository.instancia) {
+      EstoqueRepository.instancia = new EstoqueRepository();
+    }
+    return EstoqueRepository.instancia;
+  }
 
   cadastrar(estoque: Estoque): void {
     this.estoques.push(estoque);
@@ -26,10 +36,12 @@ export class EstoqueRepository {
   }
 
   remover(codigo: number): boolean {
-    const index = this.estoques.findIndex(estoque => estoque.codigo === codigo);
-    if (index === -1) return false;
-
-    this.estoques.splice(index, 1);
-    return true;
+    return this.estoques.some((estoque, index) => {
+      if (estoque.codigo === codigo) {
+        this.estoques.splice(index, 1);
+        return true;
+      }
+      return false;
+    });
   }
 }

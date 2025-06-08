@@ -75,8 +75,10 @@ export class EmprestimoController {
                 return;
             }
 
-            res.status(this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega)) ? 200 : 404).json(
-                this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega))
+            const sucesso = this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega));
+
+            res.status(sucesso ? 200 : 404).json(
+                sucesso
                     ? { mensagem: "Data de entrega atualizada com sucesso!" }
                     : { mensagem: "Empréstimo não encontrado!" }
             );
@@ -89,8 +91,10 @@ export class EmprestimoController {
         try {
             const { id } = req.params;
 
-            res.status(this.emprestimoService.remover(Number(id)) ? 200 : 404).json(
-                this.emprestimoService.remover(Number(id))
+            const sucesso = this.emprestimoService.remover(Number(id));
+
+            res.status(sucesso ? 200 : 404).json(
+                sucesso
                     ? { mensagem: "Empréstimo removido com sucesso!" }
                     : { mensagem: "Empréstimo não encontrado!" }
             );
