@@ -46,7 +46,7 @@ export class EmprestimoService {
         dataDevolucao.setDate(dataDevolucao.getDate() + diasEmprestimo);
         emprestimo.data_devolucao = dataDevolucao;
 
-        emprestimo.id = Date.now(); // 📌 Gera um ID único antes de salvar
+        emprestimo.id = Date.now(); 
 
         return this.emprestimoRepository.cadastrar(emprestimo);
     }
