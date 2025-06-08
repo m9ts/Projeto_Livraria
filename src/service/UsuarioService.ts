@@ -9,6 +9,10 @@ export class UsuarioService {
   }
 
   cadastrar(usuario: Usuario): boolean {
+    if (usuario.cpf.length !== 11 || isNaN(Number(usuario.cpf))){
+      return false;
+    }
+    
     if (this.usuarioRepository.buscarCPF(usuario.cpf)) {
       return false; 
     }
