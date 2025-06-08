@@ -40,7 +40,7 @@ export class EstoqueService {
   remover(codigo: number): boolean {
     const estoque = this.estoqueRepository.buscarCodigo(codigo);
 
-    if (!estoque || estoque.quantidade_emprestimo > 0) return false;
+    if (!estoque || estoque.quantidade_emprestimo > 0) return false; 
 
     return this.estoqueRepository.remover(codigo);
   }
