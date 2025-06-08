@@ -6,41 +6,27 @@ export class EmprestimoRepository {
     cadastrar(emprestimo: Emprestimo): boolean {
         for (const e of this.emprestimos) {
             if (e.usuario_id === emprestimo.usuario_id && e.codigo === emprestimo.codigo && !e.data_entrega) {
-                return false; 
+                console.log("Empréstimo já ativo para este usuário e livro: ", e);
+                return false;
             }
         }
 
+        emprestimo.id = Date.now(); 
         this.emprestimos.push(emprestimo);
+        console.log("Empréstimo cadastrado com sucesso: ", JSON.stringify(emprestimo, null, 2));
         return true;
     }
 
     buscarPorId(id: number): Emprestimo | undefined {
-        for (const e of this.emprestimos) {
-            if (e.id === id) {
-                return e;
-            }
-        }
-        return undefined;
+        return this.emprestimos.find(e => e.id === id);
     }
 
     buscarUsuarioId(usuario_id: string): Emprestimo[] {
-        const resultado: Emprestimo[] = [];
-        for (const e of this.emprestimos) {
-            if (e.usuario_id === usuario_id) {
-                resultado.push(e);
-            }
-        }
-        return resultado;
+        return this.emprestimos.filter(e => e.usuario_id === usuario_id);
     }
 
     buscarCodigo(codigo: number): Emprestimo[] {
-        const resultado: Emprestimo[] = [];
-        for (const e of this.emprestimos) {
-            if (e.codigo === codigo) {
-                resultado.push(e);
-            }
-        }
-        return resultado;
+        return this.emprestimos.filter(e => e.codigo === codigo);
     }
 
     listar(): Emprestimo[] {
@@ -52,18 +38,22 @@ export class EmprestimoRepository {
         if (!emprestimo) return false;
 
         emprestimo.data_entrega = data_entrega;
-        emprestimo.atraso_dias = emprestimo.calcularAtraso();
 
+        if (emprestimo.data_devolucao && data_entrega > emprestimo.data_devolucao) {
+            const atraso = Math.ceil((data_entrega.getTime() - emprestimo.data_devolucao.getTime()) / (1000 * 60 * 60 * 24));
+            emprestimo.atraso_dias = atraso;
+        }
+
+        console.log("Data de entrega atualizada com sucesso: ", JSON.stringify(emprestimo, null, 2));
         return true;
     }
 
     remover(id: number): boolean {
-        for (let i = 0; i < this.emprestimos.length; i++) {
-            if (this.emprestimos[i].id === id) {
-                this.emprestimos.splice(i, 1);
-                return true;
-            }
-        }
-        return false;
+        const index = this.emprestimos.findIndex(e => e.id === id);
+        if (index === -1) return false;
+
+        this.emprestimos.splice(index, 1);
+        console.log("Empréstimo removido com sucesso.");
+        return true;
     }
 }
