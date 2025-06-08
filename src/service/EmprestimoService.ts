@@ -17,30 +17,25 @@ export class EmprestimoService {
     cadastrar(emprestimo: Emprestimo): boolean {
         const usuario = this.usuarioService.buscarCPF(emprestimo.usuario_id);
         if (!usuario || !usuario.ativo || (usuario.suspensao && usuario.suspensao > new Date())) {
-            console.log("Usuário inválido ou suspenso:", usuario);
             return false;
         }
 
         const estoque = this.estoqueService.buscarCodigo(emprestimo.codigo);
         if (!estoque || estoque.quantidade <= estoque.quantidade_emprestimo) {
-            console.log("Estoque insuficiente:", estoque);
             return false;
         }
 
         const emprestimosAtuais = this.buscarUsuarioId(emprestimo.usuario_id);
 
         if (usuario.categoria_id === 1 && emprestimosAtuais.length >= 5) {
-            console.log("Limite de empréstimos atingido para professor:", emprestimosAtuais.length);
             return false;
         }
 
         if (usuario.categoria_id === 2 && emprestimosAtuais.length >= 3) {
-            console.log("Limite de empréstimos atingido para aluno:", emprestimosAtuais.length);
             return false;
         }
 
         let diasEmprestimo = 15;
-
         if (usuario.categoria_id === 1) {
             diasEmprestimo = 40;
         } else if (usuario.categoria_id === 2 && usuario.curso_id === estoque.codigo) {
@@ -51,9 +46,8 @@ export class EmprestimoService {
         dataDevolucao.setDate(dataDevolucao.getDate() + diasEmprestimo);
         emprestimo.data_devolucao = dataDevolucao;
 
-        emprestimo.id = Date.now();
+        emprestimo.id = Date.now(); // 📌 Gera um ID único antes de salvar
 
-        console.log("Empréstimo cadastrado com sucesso:", JSON.stringify(emprestimo, null, 2));
         return this.emprestimoRepository.cadastrar(emprestimo);
     }
 
@@ -87,7 +81,6 @@ export class EmprestimoService {
 
                 if ((usuario.suspensao.getTime() - new Date().getTime()) > 60 * 24 * 60 * 60 * 1000) {
                     usuario.ativo = false;
-                    console.log("Usuário suspenso por mais de 60 dias e agora está inativo:", usuario);
                 }
             }
         }
@@ -99,7 +92,6 @@ export class EmprestimoService {
         const emprestimo = this.buscarPorId(id);
         if (!emprestimo) return false;
 
-        console.log("Removendo empréstimo:", emprestimo);
         return this.emprestimoRepository.remover(id);
     }
 }

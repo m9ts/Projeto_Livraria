@@ -19,7 +19,6 @@ export class UsuarioRepository {
     const usuario = this.buscarCPF(cpf);
     if (!usuario) return false;
 
-  
     if (nome !== undefined) usuario.nome = nome;
     if (ativo !== undefined) usuario.ativo = ativo;
     if (categoria_id !== undefined) usuario.categoria_id = categoria_id;

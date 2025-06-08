@@ -6,14 +6,12 @@ export class EmprestimoRepository {
     cadastrar(emprestimo: Emprestimo): boolean {
         for (const e of this.emprestimos) {
             if (e.usuario_id === emprestimo.usuario_id && e.codigo === emprestimo.codigo && !e.data_entrega) {
-                console.log("Empréstimo já ativo para este usuário e livro: ", e);
                 return false;
             }
         }
 
         emprestimo.id = Date.now(); 
         this.emprestimos.push(emprestimo);
-        console.log("Empréstimo cadastrado com sucesso: ", JSON.stringify(emprestimo, null, 2));
         return true;
     }
 
@@ -44,7 +42,6 @@ export class EmprestimoRepository {
             emprestimo.atraso_dias = atraso;
         }
 
-        console.log("Data de entrega atualizada com sucesso: ", JSON.stringify(emprestimo, null, 2));
         return true;
     }
 
@@ -53,7 +50,6 @@ export class EmprestimoRepository {
         if (index === -1) return false;
 
         this.emprestimos.splice(index, 1);
-        console.log("Empréstimo removido com sucesso.");
         return true;
     }
 }
