@@ -38,4 +38,9 @@ app.get("/library/emprestimos/:id", emprestimoController.buscarPorId.bind(empres
 app.put("/library/emprestimos/:id/devolucao", emprestimoController.atualizarDataEntrega.bind(emprestimoController));
 app.delete("/library/emprestimos/:id", emprestimoController.remover.bind(emprestimoController));
 
+//Implementar endpoints de catálogo
+app.get("/categorias-usuario");
+app.get("/categorias-livro");
+app.get("/cursos");
+
 app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}/library`));
