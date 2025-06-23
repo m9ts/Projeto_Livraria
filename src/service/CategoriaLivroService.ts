@@ -1,4 +1,4 @@
-import { CategoriaLivroRepository } from "../repository/CategoriaLivroRepository";
+import { CategoriaLivroRepository } from "../repository/CursoRepository";
 
 export class CategoriaLivroService{
     categoriaLivroRepository = CategoriaLivroRepository.getInstance();
