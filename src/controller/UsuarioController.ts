@@ -1,121 +1,90 @@
-import { Request, Response } from "express";
 import { UsuarioService } from "../service/UsuarioService";
-import { Usuario } from "../model/Usuario";
+import { Request, Response } from "express";
 
-export class UsuarioController {
-  private usuarioService: UsuarioService;
+export class UsuarioController{
+    private usuarioService = new UsuarioService();
 
-  constructor() {
-    this.usuarioService = UsuarioService.getInstancia();
-  }
-
-  public cadastrar(req: Request, res: Response): void {
-    try {
-      const { cpf, nome, ativo, categoria_id, curso_id, suspensao } = req.body;
-
-      if (!cpf || !nome || !categoria_id || !curso_id) {
-        res.status(400).json({ mensagem: "CPF, nome, categoria e curso são obrigatórios!" });
-        return;
-      }
-
-      const novoUsuario = new Usuario(Date.now(), nome, cpf, ativo ?? true, categoria_id, curso_id, suspensao);
-      const sucesso = this.usuarioService.cadastrar(novoUsuario);
-
-      if (!sucesso) {
-        res.status(400).json({ mensagem: "Usuário já cadastrado!" });
-        return;
-      }
-
-      res.status(201).json({ mensagem: "Usuário cadastrado com sucesso!" });
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro interno ao cadastrar usuário!", erro: mensagemErro });
+    criarUsuario(req: Request, res: Response): void{
+        try{
+            const usuario = this.usuarioService.cadastrarUsuario(req.body);
+            res.status(201).json(usuario);
+        }catch(error: unknown){
+            let message: string = "Não foi possível criar o registro";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public buscarCPF(req: Request, res: Response): void {
-    try {
-      const { cpf } = req.params;
-
-      if (!cpf) {
-        res.status(400).json({ mensagem: "CPF do usuário é obrigatório!" });
-        return;
-      }
-
-      const usuario = this.usuarioService.buscarCPF(cpf);
-
-      if (!usuario) {
-        res.status(404).json({ mensagem: "Usuário não encontrado!" });
-        return;
-      }
-
-      res.status(200).json(usuario);
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro interno ao buscar usuário!", erro: mensagemErro });
+    listarUsuario(req: Request, res: Response): void{
+        try{
+            const filtros = req.query;
+            const usuario = this.usuarioService.listarUsuarioComFiltro(filtros);
+            res.status(201).json(usuario);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível listar os usuários";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public listar(req: Request, res: Response): void {
-    try {
-      const usuarios = this.usuarioService.listarTodos();
-
-      if (usuarios.length === 0) {
-        res.status(200).json({ mensagem: "Nenhum usuário cadastrado no sistema." });
-        return;
-      }
-
-      res.status(200).json(usuarios);
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro interno ao listar usuários!", erro: mensagemErro });
+    buscarUsuario(req: Request, res: Response): void{
+        const cpf = req.params.cpf;
+        try{
+            const usuario = this.usuarioService.buscarUsuario(cpf);
+            res.status(201).json(usuario);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível retornar o usuário";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public atualizar(req: Request, res: Response): void {
-    try {
-      const { cpf } = req.params;
-      const { nome, ativo, categoria_id, curso_id, suspensao } = req.body;
-
-      if (!cpf) {
-        res.status(400).json({ mensagem: "CPF do usuário é obrigatório!" });
-        return;
-      }
-
-      const sucesso = this.usuarioService.atualizar(cpf, nome, ativo, categoria_id, curso_id, suspensao);
-
-      if (!sucesso) {
-        res.status(404).json({ mensagem: "Usuário não encontrado!" });
-        return;
-      }
-
-      res.status(200).json({ mensagem: "Usuário atualizado com sucesso!" });
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro interno ao atualizar usuário!", erro: mensagemErro });
+    atualizarUsuario(req: Request, res: Response): void{
+        const cpf = req.params.cpf;
+        try{
+            const usuario = this.usuarioService.atualizarUsuario(cpf, req.body);
+            res.status(201).json(usuario);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível atualizar usuário";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public remover(req: Request, res: Response): void {
-    try {
-      const { cpf } = req.params;
-
-      if (!cpf) {
-        res.status(400).json({ mensagem: "CPF do usuário é obrigatório!" });
-        return;
-      }
-
-      const sucesso = this.usuarioService.remover(cpf);
-
-      if (!sucesso) {
-        res.status(404).json({ mensagem: "Usuário não encontrado ou não pode ser removido!" });
-        return;
-      }
-
-      res.status(200).json({ mensagem: "Usuário removido com sucesso!" });
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro interno ao remover usuário!", erro: mensagemErro });
+    removerUsuario(req: Request, res: Response): void{
+        const cpf = req.params.cpf;
+        try{
+            const usuario = this.usuarioService.removerUsuario(cpf);
+            res.status(204).send();
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível remover usuário";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 }
+

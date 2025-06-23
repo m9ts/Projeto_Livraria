@@ -1,121 +1,89 @@
-import { Request, Response } from "express";
 import { LivroService } from "../service/LivroService";
-import { Livro } from "../model/Livro";
+import { Request, Response } from "express";
 
-export class LivroController {
-  private livroService: LivroService;
+export class LivroController{
+    private livroService = new LivroService();
 
-  constructor() {
-    this.livroService = new LivroService();
-  }
-
-  public cadastrar(req: Request, res: Response): void {
-    try {
-      const { isbn, titulo, autor, editora, edicao, categoria_id } = req.body;
-
-      if (!isbn || !titulo || !autor || !editora || !edicao || !categoria_id) {
-        res.status(400).json({ mensagem: "Todos os campos são obrigatórios!" });
-        return;
-      }
-
-      const novoLivro = new Livro(Date.now(), titulo, autor, editora, edicao, isbn, categoria_id);
-      const sucesso = this.livroService.cadastrar(novoLivro);
-
-      if (!sucesso) {
-        res.status(400).json({ mensagem: "Livro já cadastrado!" });
-        return;
-      }
-
-      res.status(201).json({ mensagem: "Livro cadastrado com sucesso!" });
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro ao cadastrar livro!", erro: mensagemErro });
+    criarLivro(req: Request, res: Response): void{
+        try{
+            const livro = this.livroService.AdicionarLivro(req.body);
+            res.status(201).json(livro);
+        }catch(error: unknown){
+            let message: string = "Não foi possível criar o registro";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public buscarISBN(req: Request, res: Response): void {
-    try {
-      const { isbn } = req.params;
-
-      if (!isbn) {
-        res.status(400).json({ mensagem: "O ISBN do livro é obrigatório!" });
-        return;
-      }
-
-      const livro = this.livroService.buscarISBN(isbn);
-
-      if (!livro) {
-        res.status(404).json({ mensagem: "Livro não encontrado!" });
-        return;
-      }
-
-      res.status(200).json(livro);
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro ao buscar livro!", erro: mensagemErro });
+    listarLivro(req: Request, res: Response): void{
+        try{
+            const filtros = req.query;
+            const livro = this.livroService.listarLivroComFiltro(filtros);
+            res.status(201).json(livro);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível listar os livros";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public listar(req: Request, res: Response): void {
-    try {
-      const livros = this.livroService.listar();
-
-      if (livros.length === 0) {
-        res.status(200).json({ mensagem: "Nenhum livro cadastrado no sistema." });
-        return;
-      }
-
-      res.status(200).json(livros);
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro ao listar livros!", erro: mensagemErro });
+    buscarLivro(req: Request, res: Response): void{
+        const isbn = req.params.isbn;
+        try{
+            const livro = this.livroService.buscarLivroPorISBN(isbn);
+            res.status(201).json(livro);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível retornar o livro";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public atualizar(req: Request, res: Response): void {
-    try {
-      const { isbn } = req.params;
-      const { titulo, autor, editora, edicao, categoria_id } = req.body;
-
-      if (!isbn) {
-        res.status(400).json({ mensagem: "O ISBN do livro é obrigatório!" });
-        return;
-      }
-
-      const sucesso = this.livroService.atualizar(isbn, titulo, autor, editora, edicao, categoria_id);
-
-      if (!sucesso) {
-        res.status(404).json({ mensagem: "Livro não encontrado!" });
-        return;
-      }
-
-      res.status(200).json({ mensagem: "Livro atualizado com sucesso!" });
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro ao atualizar livro!", erro: mensagemErro });
+    atualizarLivro(req: Request, res: Response): void{
+        const isbn = req.params.isbn;
+        try{
+            const livro = this.livroService.atualizarLivro(isbn, req.body);
+            res.status(201).json(livro);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível atualizar informações do livro";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 
-  public remover(req: Request, res: Response): void {
-    try {
-      const { isbn } = req.params;
-
-      if (!isbn) {
-        res.status(400).json({ mensagem: "O ISBN do livro é obrigatório!" });
-        return;
-      }
-
-      const sucesso = this.livroService.remover(isbn);
-
-      if (!sucesso) {
-        res.status(404).json({ mensagem: "Livro não encontrado ou não pode ser removido!" });
-        return;
-      }
-
-      res.status(200).json({ mensagem: "Livro removido com sucesso!" });
-    } catch (error) {
-      const mensagemErro = error instanceof Error ? error.message : "Erro desconhecido.";
-      res.status(500).json({ mensagem: "Erro ao remover livro!", erro: mensagemErro });
+    removerLivro(req: Request, res: Response): void{
+        const isbn = req.params.isbn;
+        try{
+            const livro = this.livroService.removerLivro(isbn);
+            res.status(204).send();
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível remover livro";
+            if(error instanceof Error){
+                message = error.message;
+            }
+            res.status(400).json({
+                message: message
+            });
+        }
     }
-  }
 }

@@ -1,105 +1,55 @@
-import { Request, Response } from "express";
 import { EmprestimoService } from "../service/EmprestimoService";
-import { Emprestimo } from "../model/Emprestimo";
+import { Request, Response } from "express";
 
-export class EmprestimoController {
-    private emprestimoService: EmprestimoService;
+export class EmprestimoController{
+    private emprestimoService = new EmprestimoService;
 
-    constructor() {
-        this.emprestimoService = new EmprestimoService();
-    }
-
-    public cadastrar(req: Request, res: Response): void {
-        try {
-            const { usuario_id, codigo, data_emprestimo } = req.body;
-
-            if (!usuario_id || !codigo || !data_emprestimo) {
-                res.status(400).json({ mensagem: "Todos os campos são obrigatórios!" });
-                return;
+    criarEmprestimo(req: Request, res: Response): void{
+        try{
+            const { cpfUsuario, codigoExemplar } = req.body;
+            const emprestimo = this.emprestimoService.registrarEmprestimo(cpfUsuario, codigoExemplar);
+            res.status(201).json(emprestimo);
+        }catch(error: unknown){
+            let message: string = "Não foi possível criar o registro";
+            if(error instanceof Error){
+                message = error.message;
             }
+            res.status(400).json({
+                message: message
+            });
+        }
+    }
 
-            const dataDevolucao = new Date(data_emprestimo);
-            dataDevolucao.setDate(dataDevolucao.getDate() + 15);
-
-            const novoEmprestimo = new Emprestimo(
-                Date.now(),
-                usuario_id,
-                codigo,
-                new Date(data_emprestimo),
-                dataDevolucao
-            );
-
-            if (!this.emprestimoService.cadastrar(novoEmprestimo)) {
-                res.status(400).json({ mensagem: "Empréstimo inválido ou usuário não permitido!" });
-                return;
+    listarEmprestimos(req: Request, res: Response): void{
+        try{
+            const emprestimo = this.emprestimoService.listarEmprestimos();
+            res.status(201).json(emprestimo);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível listar empréstimos";
+            if(error instanceof Error){
+                message = error.message;
             }
-
-            res.status(201).json({ mensagem: "Empréstimo registrado com sucesso!", data_devolucao: dataDevolucao });
-        } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao cadastrar empréstimo!", erro: error instanceof Error ? error.message : error });
+            res.status(400).json({
+                message: message
+            });
         }
     }
 
-    public listar(req: Request, res: Response): void {
-        try {
-            const emprestimos = this.emprestimoService.listar();
-
-            res.status(emprestimos.length === 0 ? 200 : 200).json(
-                emprestimos.length === 0 ? { mensagem: "Nenhum empréstimo cadastrado no sistema." } : emprestimos
-            );
-        } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao listar empréstimos!", erro: error instanceof Error ? error.message : error });
+    registrarDevolucao(req: Request, res: Response): void{
+        const id = parseInt(req.params.id);
+        try{
+            const emprestimo = this.emprestimoService.registrarDevolucao(id);
+            res.status(201).json(emprestimo);
         }
-    }
-
-    public buscarPorId(req: Request, res: Response): void {
-        try {
-            const { id } = req.params;
-            const emprestimo = this.emprestimoService.buscarPorId(Number(id));
-
-            res.status(emprestimo ? 200 : 404).json(
-                emprestimo ? emprestimo : { mensagem: "Empréstimo não encontrado!" }
-            );
-        } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao buscar empréstimo!", erro: error instanceof Error ? error.message : error });
-        }
-    }
-
-    public atualizarDataEntrega(req: Request, res: Response): void {
-        try {
-            const { id } = req.params;
-            const { data_entrega } = req.body;
-
-            if (!data_entrega) {
-                res.status(400).json({ mensagem: "Data de entrega é obrigatória!" });
-                return;
+        catch(error: unknown){
+            let message: string = "Não foi possível registrar devolucao";
+            if(error instanceof Error){
+                message = error.message;
             }
-
-            const sucesso = this.emprestimoService.atualizarDataEntrega(Number(id), new Date(data_entrega));
-
-            res.status(sucesso ? 200 : 404).json(
-                sucesso
-                    ? { mensagem: "Data de entrega atualizada com sucesso!" }
-                    : { mensagem: "Empréstimo não encontrado!" }
-            );
-        } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao atualizar data de entrega!", erro: error instanceof Error ? error.message : error });
-        }
-    }
-
-    public remover(req: Request, res: Response): void {
-        try {
-            const { id } = req.params;
-
-            const sucesso = this.emprestimoService.remover(Number(id));
-
-            res.status(sucesso ? 200 : 404).json(
-                sucesso
-                    ? { mensagem: "Empréstimo removido com sucesso!" }
-                    : { mensagem: "Empréstimo não encontrado!" }
-            );
-        } catch (error) {
-            res.status(500).json({ mensagem: "Erro ao remover empréstimo!", erro: error instanceof Error ? error.message : error });
+            res.status(400).json({
+                message: message
+            });
         }
     }
 }
