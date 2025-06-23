@@ -1,20 +1,19 @@
 export class Emprestimo {
-    constructor(
-        public id: number,
-        public usuario_id: string, 
-        public codigo: number, 
-        public data_emprestimo: Date,
-        public data_devolucao: Date, 
-        public data_entrega?: Date,
-        public atraso_dias?: number
-    ){}
+    static proximoId: number = 1;
 
-    calcularAtraso(): number {
-        if (!this.data_entrega) return 0;
+    id: number;
+    cpfUsuario: string;
+    codigoExemplar: number;
+    dataEmprestimo: Date;
+    dataDevolucao?: Date;
+    dataEntrega?: Date;
+    diasAtraso?: number;
+    suspencaoAte?: Date;
 
-        const diffEmMs = this.data_entrega.getTime() - this.data_devolucao.getTime();
-        const atraso_dias = diffEmMs / (1000 * 60 * 60 * 24);
-
-        return atraso_dias < 0 ? 0 : atraso_dias; 
+    constructor(cpfUsuario: string, codigoExemplar: number){
+        this.id = Emprestimo.proximoId++;
+        this.cpfUsuario = cpfUsuario;
+        this.codigoExemplar = codigoExemplar;
+        this.dataEmprestimo = new Date();
     }
 }
