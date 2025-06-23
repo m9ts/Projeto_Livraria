@@ -1,9 +1,14 @@
 import { CategoriaLivroRepository } from "../repository/CategoriaLivroRepository";
 
 export class CategoriaLivroService{
-    private categoriaLivroRepository = CategoriaLivroRepository.getInstance();
+    categoriaLivroRepository = CategoriaLivroRepository.getInstance();
 
-    listarCategoriaLivro(){
-        return this.categoriaLivroRepository.listarCategoriasLivro();
+    listarCategorias(){
+        return this.categoriaLivroRepository.listarCategorias();
     }
+
+    buscarPorId(id: number){
+        return this.categoriaLivroRepository.buscarPorId(id);
+    }
+    
 }

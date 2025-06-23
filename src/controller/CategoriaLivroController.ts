@@ -1,20 +1,22 @@
 import { CategoriaLivroService } from "../service/CategoriaLivroService";
 import { Request, Response } from "express";
 
-export class CategoriaCursoController{
+export class CategoriaLivroController{
     private categoriaLivroService = new CategoriaLivroService();
 
-    listarCategoriaLivro(req: Request, res: Response): void{
+    listarCategorias(req: Request, res: Response){
         try{
-            const lista = this.categoriaLivroService.listarCategoriaLivro();
-            res.status(200).json(lista);
-        } catch(error: unknown){
-            let message = "Não foi possível realizar a operação de listagem de categorias de livros";
-
+            const categoria = this.categoriaLivroService.listarCategorias();
+            res.status(201).json(categoria);
+        }
+        catch(error: unknown){
+            let message: string = "Não foi possível listar as categorias";
             if(error instanceof Error){
                 message = error.message;
             }
-            res.status(400).json({message: message})
+            res.status(400).json({
+                message: message
+            });
         }
     }
 }
