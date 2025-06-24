@@ -9,7 +9,7 @@ export class Livro {
     edicao: string;
     categoriaId: number;
 
-    constructor(id: number, isbn: string, titulo: string, autor: string, editora: string, edicao: string, categoriaId: number){
+    constructor(isbn: string, titulo: string, autor: string, editora: string, edicao: string, categoriaId: number){
         this.id = Livro.proximoId++;
         this.isbn = isbn;
         this.titulo = titulo;

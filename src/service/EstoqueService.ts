@@ -1,48 +1,62 @@
-import { EstoqueRepository } from "../repository/EstoqueRepository";
 import { Estoque } from "../model/Estoque";
+import { EstoqueRepository } from "../repository/EstoqueRepository";
+import { LivroRepository } from "../repository/LivroRepository";
 
-export class EstoqueService {
-  private static instancia: EstoqueService;
-  private estoqueRepository: EstoqueRepository;
+export class EstoqueService{
+    estoqueRepository: EstoqueRepository = EstoqueRepository.getInstance();
+    livroRepository: LivroRepository = LivroRepository.getInstance();
 
-  private constructor() {
-    this.estoqueRepository = EstoqueRepository.getInstancia();
-  }
+    cadastrarExemplar(codigo: number, livro_isbn: string){
+        if(!codigo || !livro_isbn){
+            throw new Error("ISBN e código do livro é obrigatório!");
+        }
 
-  static getInstancia(): EstoqueService {
-    if (!EstoqueService.instancia) {
-      EstoqueService.instancia = new EstoqueService();
+        const livro = this.livroRepository.buscarLivroPorISBN(livro_isbn);
+        if(!livro){
+            throw new Error("Livro não encontrado.");
+        }
+
+        const novoExemplar = new Estoque(codigo, livro_isbn, 1, 0);
+        const existente = this.estoqueRepository.buscarPorCodigo(novoExemplar.codigo);
+        if(existente){
+            throw new Error("Código já utilizado. Tente novamente.");
+        }
+        this.estoqueRepository.inserirExemplar(novoExemplar);
+        return novoExemplar;
     }
-    return EstoqueService.instancia;
-  }
 
-  cadastrar(estoque: Estoque): boolean {
-    if (this.estoqueRepository.buscarCodigo(estoque.codigo)) {
-      return false;
+    listarDisponiveis(): Estoque[] {
+        return this.estoqueRepository.listarEstoque().filter(e => e.status === "disponivel");
     }
 
-    this.estoqueRepository.cadastrar(estoque);
-    return true;
-  }
+    buscarExemplar(codigo: number): Estoque {
+        const exemplar = this.estoqueRepository.buscarPorCodigo(codigo);
+        if(!exemplar){
+            throw new Error("Exemplar não encontrado.");
+        }
+        return exemplar;
+    }
 
-  buscarCodigo(codigo: number): Estoque | undefined {
-    return this.estoqueRepository.buscarCodigo(codigo);
-  }
+    atualizarStatus(codigo: number, status: "disponivel" | "emprestado"): Estoque {
+        const exemplar = this.buscarExemplar(codigo);
+        if(exemplar.status === status){
+            return exemplar;
+        }
 
-  listar(): Estoque[] {
-    return this.estoqueRepository.listar();
-  }
+        exemplar.status = status;
+        exemplar.quantidade_emprestada = status === "emprestado" ? 1 : 0;
+        return exemplar;
+    }
 
-  atualizar(codigo: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
-    return this.estoqueRepository.atualizar(codigo, quantidade, quantidade_emprestimo);
-  }
+    removerExemplar(codigo: number): void {
+        const exemplar = this.buscarExemplar(codigo);
+        if(exemplar.status === "emprestado"){
+            throw new Error("Não é possível remover um exemplar emprestado.");
+        }
 
-  verificarDisponibilidade(codigo: number): boolean {
-    const estoque = this.estoqueRepository.buscarCodigo(codigo);
-    return estoque ? estoque.quantidade - estoque.quantidade_emprestimo > 0 : false;
-  }
-
-  remover(codigo: number): boolean {
-    return this.estoqueRepository.remover(codigo);
-  }
+        const sucesso = this.estoqueRepository.remover(codigo);
+        if(!sucesso){
+            throw new Error("Erro ao remover exemplar.");
+        }
+    }
 }
