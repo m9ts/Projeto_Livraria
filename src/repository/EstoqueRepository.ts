@@ -1,47 +1,46 @@
-import { Estoque } from "../model/Estoque";
+import {Estoque} from '../model/Estoque';
 
-export class EstoqueRepository {
-  private static instancia: EstoqueRepository;
-  private estoques: Estoque[] = [];
+export class EstoqueRepository{
+    private static instance: EstoqueRepository;
+    private exemplares: Estoque[] = [];
 
-  private constructor() {}
+    private constructor(){}
 
-  static getInstancia(): EstoqueRepository {
-    if (!EstoqueRepository.instancia) {
-      EstoqueRepository.instancia = new EstoqueRepository();
+    public static getInstance(): EstoqueRepository{
+        if(!this.instance) {
+            this.instance = new EstoqueRepository();
+        }
+        return this.instance;
     }
-    return EstoqueRepository.instancia;
-  }
 
-  cadastrar(estoque: Estoque): void {
-    this.estoques.push(estoque);
-  }
+    inserirExemplar(exemplar: Estoque){
+        this.exemplares.push(exemplar);
+    }
 
-  buscarCodigo(codigo: number): Estoque | undefined {
-    return this.estoques.find(estoque => estoque.codigo === codigo);
-  }
+    buscarPorISBN(isbn:string): Estoque | undefined{
+        return this.exemplares.find(exemplar => exemplar.livro_isbn === isbn);
+    }
 
-  listar(): Estoque[] {
-    return this.estoques;
-  }
+    buscarPorCodigo(codigo: number): Estoque | undefined{
+        return this.exemplares.find(exemplar => exemplar.codigo === codigo);
+    }
 
-  atualizar(codigo: number, quantidade?: number, quantidade_emprestimo?: number): boolean {
-    const estoque = this.buscarCodigo(codigo);
-    if (!estoque) return false;
-
-    if (quantidade !== undefined) estoque.quantidade = quantidade;
-    if (quantidade_emprestimo !== undefined) estoque.quantidade_emprestimo = quantidade_emprestimo;
-
-    return true;
-  }
-
-  remover(codigo: number): boolean {
-    return this.estoques.some((estoque, index) => {
-      if (estoque.codigo === codigo) {
-        this.estoques.splice(index, 1);
+    listarEstoque(): Estoque[]{
+        return this.exemplares;
+    }
+    
+    atualizarStatus(codigo: number, status: "emprestado" | "disponivel"): boolean {
+        const exemplar = this.buscarPorCodigo(codigo);
+        if (!exemplar) return false;
+        exemplar.status = status;
         return true;
-      }
-      return false;
-    });
-  }
+    }
+
+    remover(codigo: number): boolean {
+        const index = this.exemplares.findIndex(e => e.codigo === codigo);
+        if (index === -1) return false;
+
+        this.exemplares.splice(index, 1);
+        return true;
+    }
 }

@@ -1,37 +1,75 @@
 import { Livro } from "../model/Livro";
 
+type DadosAtualizacaoLivro = {
+    titulo?: string;
+    autor?: string;
+    editora?: string;
+    edicao?: string;
+    categoriaId?: number;
+}
+
 export class LivroRepository {
+    private static instance: LivroRepository;
     private livros: Livro[] = [];
 
-    cadastrar(livro: Livro): void {
+    private constructor() {}
+
+    public static getInstance(): LivroRepository {
+        if (!this.instance) {
+            this.instance = new LivroRepository();
+        }
+        return this.instance;
+    }
+
+    inserirLivro(livro: Livro) {
         this.livros.push(livro);
     }
 
-    buscarISBN(ISBN: string): Livro | undefined {
-        return this.livros.find(livro => livro.ISBN === ISBN);
+    buscarLivroPorISBN(isbn: string): Livro | undefined {
+        return this.livros.find((livro) => livro.isbn === isbn);
     }
 
-    listar(): Livro[] {
+    buscarLivroPorAutorEditoraEdicao(autor: string, editora: string, edicao: string): Livro | undefined{
+        return this.livros.find(livro => livro.autor.toLowerCase() === autor.toLowerCase()
+        && livro.editora.toLowerCase() === editora.toLowerCase() && livro.edicao === edicao);
+    }
+
+    listarLivros(): Livro[] {
         return this.livros;
     }
 
-    atualizar(ISBN: string, titulo?: string, autor?: string, editora?: string, edicao?: string, categoria_id?: number): boolean {
-        const livro = this.buscarISBN(ISBN);
-        if (!livro) return false;
+    atualizarDadosLivro(isbn: string, novosDados: DadosAtualizacaoLivro){
+        const livro = this.buscarLivroPorISBN(isbn);
+        if(!livro) return undefined;
 
-        if (titulo !== undefined) livro.titulo = titulo;
-        if (autor !== undefined) livro.autor = autor;
-        if (editora !== undefined) livro.editora = editora;
-        if (edicao !== undefined) livro.edicao = edicao;
-        if (categoria_id !== undefined) livro.categoria_id = categoria_id;
+        if(novosDados.titulo){
+            livro.titulo = novosDados.titulo;
+        }
 
-        return true;
+        if(novosDados.autor){
+            livro.autor = novosDados.autor;
+        }
+
+        if(novosDados.editora){
+            livro.editora = novosDados.editora;
+        }
+
+        if(novosDados.edicao){
+            livro.edicao = novosDados.edicao;
+        }
+
+        if(novosDados.categoriaId){
+            livro.categoriaId = novosDados.categoriaId;
+        }
+
+        return livro;
     }
 
-    remover(ISBN: string): boolean {
-        const index = this.livros.findIndex(livro => livro.ISBN === ISBN);
-        if (index === -1) return false;
-
+    removerLivro(isbn: string): boolean{
+        const index = this.livros.findIndex(l => l.isbn == isbn);
+        if(index == -1){
+            return false;
+        }
         this.livros.splice(index, 1);
         return true;
     }

@@ -1,48 +1,62 @@
-import { Usuario } from "../model/Usuario";
+import {Usuario} from "../model/Usuario"
 
-export class UsuarioRepository {
-  private static instancia: UsuarioRepository;
-  private usuarios: Usuario[] = [];
+type DadosAtualizacaoUsuario = {
+    nome?: string;
+    email?: string;
+    categoriaId?: number;
+    cursoId?: number;
+}
 
-  private constructor() {}
+export class UsuarioRepository{
+    private static instance: UsuarioRepository;
+    private usuarios: Usuario[] = [];
 
-  static getInstancia(): UsuarioRepository {
-    if (!UsuarioRepository.instancia) {
-      UsuarioRepository.instancia = new UsuarioRepository();
+    private constructor(){}
+
+    public static getInstance(): UsuarioRepository{
+        if(!this.instance) {
+            this.instance = new UsuarioRepository();
+        }
+        return this.instance;
     }
-    return UsuarioRepository.instancia;
-  }
 
-  cadastrar(usuario: Usuario): void {
-    this.usuarios.push(usuario);
-  }
+    InserirUsuario(usuario: Usuario){
+        this.usuarios.push(usuario);
+    }
 
-  buscarCPF(cpf: string): Usuario | undefined {
-    return this.usuarios.find(user => user.cpf === cpf);
-  }
+    buscarUsuarioPorCPF(cpf:string): Usuario | undefined{
+        return this.usuarios.find(usuario => usuario.cpf === cpf);
+    }
 
-  listarTodos(): Usuario[] {
-    return this.usuarios;
-  }
+    listarUsuarios(): Usuario[]{
+        return this.usuarios;
+    }
 
-  atualizar(cpf: string, nome?: string, ativo?: boolean, categoria_id?: number, curso_id?: number, suspensao?: Date): boolean {
-    const usuario = this.buscarCPF(cpf);
-    if (!usuario) return false;
+    atualizarDadosUsuario(cpf: string, novosDados: DadosAtualizacaoUsuario): Usuario | undefined{
+        const usuario = this.buscarUsuarioPorCPF(cpf);
+        if(!usuario) return undefined;
 
-    if (nome !== undefined) usuario.nome = nome;
-    if (ativo !== undefined) usuario.ativo = ativo;
-    if (categoria_id !== undefined) usuario.categoria_id = categoria_id;
-    if (curso_id !== undefined) usuario.curso_id = curso_id;
-    if (suspensao !== undefined) usuario.suspensao = suspensao;
+        if(novosDados.nome){
+            usuario.nome = novosDados.nome;
+        }
+        if(novosDados.email){
+            usuario.email = novosDados.email;
+        }
+        if(novosDados.categoriaId){
+            usuario.categoriaId = novosDados.categoriaId;
+        }
+        if(novosDados.cursoId){
+            usuario.cursoId = novosDados.cursoId;
+        }
+        return usuario;
+    }
 
-    return true;
-  }
-
-  remover(cpf: string): boolean {
-    const index = this.usuarios.findIndex(user => user.cpf === cpf);
-    if (index === -1) return false;
-
-    this.usuarios.splice(index, 1);
-    return true;
-  }
+    removerUsuario(cpf: string): boolean{
+        const index = this.usuarios.findIndex(u => u.cpf === cpf);
+        if(index == -1){
+            return false;
+        }
+        this.usuarios.splice(index, 1);
+        return true;
+    }
 }
