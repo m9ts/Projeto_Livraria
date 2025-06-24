@@ -1,9 +1,13 @@
-import { CursoRepository } from "../repository/CategoriaCursoRepository";
+import { CursoRepository } from "../repository/CursoRepository";
 
 export class CursoService{
-    private CursoRepository = CursoRepository.getInstance();
+    cursoRepository = CursoRepository.getInstance();
 
     listarCursos(){
-        return this.CursoRepository.listarCursos();
+        return this.cursoRepository.listarCursos();
+    }
+
+    buscarPorId(id: number){
+        return this.cursoRepository.buscarPorId(id);
     }
 }

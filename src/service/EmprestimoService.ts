@@ -1,93 +1,104 @@
-import { EmprestimoRepository } from "../repository/EmprestimoRepository";
 import { Emprestimo } from "../model/Emprestimo";
-import { UsuarioService } from "../service/UsuarioService";
-import { EstoqueService } from "../service/EstoqueService";
+import { EmprestimoRepository } from "../repository/EmprestimoRepository";
+import { UsuarioRepository } from "../repository/UsuarioRepository";
+import { EstoqueRepository } from "../repository/EstoqueRepository";
+import { CategoriaUsuarioRepository } from "../repository/CategoriaUsuarioRepository";
+import { LivroRepository } from "../repository/LivroRepository";
+import { UsuarioService } from "./UsuarioService";
 
-export class EmprestimoService {
-    private emprestimoRepository: EmprestimoRepository;
-    private usuarioService: UsuarioService;
-    private estoqueService: EstoqueService;
+export class EmprestimoService{
+    emprestimoRepository: EmprestimoRepository = EmprestimoRepository.getInstance();
+    usuarioRepository: UsuarioRepository = UsuarioRepository.getInstance();
+    estoqueRepository: EstoqueRepository = EstoqueRepository.getInstance();
+    catUsuRepository: CategoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance();
+    livroRepository: LivroRepository = LivroRepository.getInstance();
+    usuarioService = new UsuarioService();
 
-    constructor() {
-        this.emprestimoRepository = new EmprestimoRepository();
-        this.usuarioService = UsuarioService.getInstancia(); 
-        this.estoqueService = EstoqueService.getInstancia();  
-    }
-
-    cadastrar(emprestimo: Emprestimo): boolean {
-        const usuario = this.usuarioService.buscarCPF(emprestimo.usuario_id);
-        if (!usuario || !usuario.ativo || (usuario.suspensao && usuario.suspensao > new Date())) {
-            return false;
+    registrarEmprestimo(cpfUsuario: string, codigoExemplar: number): Emprestimo{
+        const usuario = this.usuarioRepository.buscarUsuarioPorCPF(cpfUsuario);
+        if(!usuario){
+            throw new Error("Usuário não encontrado!");
+        }
+        if(usuario.status !== "ativo"){
+            throw new Error("Usuário inativo.");
+        }
+        if(usuario.diaSuspensao && usuario.diaSuspensao > 0){
+            throw new Error("Usuário suspenso.");
         }
 
-        const estoque = this.estoqueService.buscarCodigo(emprestimo.codigo); 
-        if (!estoque || estoque.quantidade <= estoque.quantidade_emprestimo) {
-            return false;
+        const exemplar = this.estoqueRepository.buscarPorCodigo(codigoExemplar);
+        if(!exemplar || exemplar.status !== "disponivel"){
+            throw new Error("Exemplar não disponível.");
         }
 
-        const emprestimosAtuais = this.buscarUsuarioId(emprestimo.usuario_id);
-        if (usuario.categoria_id === 1 && emprestimosAtuais.length >= 5) {
-            return false;
-        }
-        if (usuario.categoria_id === 2 && emprestimosAtuais.length >= 3) {
-            return false;
+        const categoria = this.catUsuRepository.buscarPorId(usuario.categoriaId);
+        if(!categoria){
+            throw new Error("Categoria do usuário inválida.");
         }
 
-        let diasEmprestimo = 15;
-        if (usuario.categoria_id === 1) {
-            diasEmprestimo = 40;
-        } else if (usuario.categoria_id === 2 && usuario.curso_id === estoque.codigo) {
-            diasEmprestimo = 30;
+        const livro = this.livroRepository.buscarLivroPorISBN(exemplar.livro_isbn);
+        if (!livro) {
+            throw new Error("Livro associado ao exemplar não encontrado.");
         }
 
+        const emprestimosAtivos = this.emprestimoRepository.emprestimosAbertos(cpfUsuario);
+        const limiteQtd = categoria.nome === "Professor" ? 5 : 3;
+        const limiteDias = categoria.nome === "Aluno" && livro && 
+        livro.categoriaId === usuario.cursoId ? 30 : categoria.nome === "Aluno" ? 15 : 40;
+
+        if (emprestimosAtivos.length >= limiteQtd) {
+            throw new Error("Usuário atingiu o limite de empréstimos!");
+        }
+
+        const dataEmprestimo = new Date();
         const dataDevolucao = new Date();
-        dataDevolucao.setDate(dataDevolucao.getDate() + diasEmprestimo);
-        emprestimo.data_devolucao = dataDevolucao;
+        dataDevolucao.setDate(dataEmprestimo.getDate() + limiteDias);
 
-        emprestimo.id = Date.now(); 
+        const novoEmprestimo = new Emprestimo(cpfUsuario, codigoExemplar);
+        exemplar.status = "emprestado";
+        novoEmprestimo.dataEmprestimo = dataEmprestimo;
+        novoEmprestimo.dataDevolucao = dataDevolucao;
 
-        return this.emprestimoRepository.cadastrar(emprestimo);
+        this.emprestimoRepository.inserir(novoEmprestimo);
+        return novoEmprestimo;
     }
 
-    buscarPorId(id: number): Emprestimo | undefined {
-        return this.emprestimoRepository.buscarPorId(id);
+    listarEmprestimos(): Emprestimo[]{
+        return this.emprestimoRepository.listarEmprestimos();
     }
 
-    buscarUsuarioId(usuario_id: string): Emprestimo[] {
-        return this.emprestimoRepository.buscarUsuarioId(usuario_id);
-    }
+    registrarDevolucao(id: number): Emprestimo{
+        const emprestimo = this.emprestimoRepository.buscarEmprestimoPorId(id);
+        if (emprestimo === undefined|| emprestimo.dataEntrega) {
+            throw new Error("Empréstimo não encontrado ou já devolvido.");
+        }
+        const dataEntrega = new Date();
+        emprestimo.dataEntrega = dataEntrega;
+        let atraso: number = 0;
 
-    listar(): Emprestimo[] {
-        return this.emprestimoRepository.listar();
-    }
-
-    atualizarDataEntrega(id: number, data_entrega: Date): boolean {
-        const emprestimo = this.buscarPorId(id);
-        if (!emprestimo) return false;
-
-        const sucesso = this.emprestimoRepository.atualizarDataEntrega(id, data_entrega);
-
-        if (sucesso && emprestimo.atraso_dias) {
-            const usuario = this.usuarioService.buscarCPF(emprestimo.usuario_id);
-            if (usuario) {
-                usuario.suspensao = new Date();
-                usuario.suspensao.setDate(usuario.suspensao.getDate() + emprestimo.atraso_dias * 3);
-
-                if ((usuario.suspensao.getTime() - new Date().getTime()) > 60 * 24 * 60 * 60 * 1000) {
-                    usuario.ativo = false;
-                }
-
-                this.usuarioService.atualizar(usuario.cpf, usuario.nome, usuario.ativo, usuario.categoria_id, usuario.curso_id, usuario.suspensao);
-            }
+        if (!emprestimo.dataDevolucao) {
+            throw new Error("Data de devolução não está definida.");
+        }
+        
+        if (dataEntrega > emprestimo.dataDevolucao) {
+            const diferencaMs = dataEntrega.getTime() - emprestimo.dataDevolucao.getTime();
+            atraso = Math.ceil(diferencaMs / (1000 * 60 * 60 * 24));
+        }
+        else{
+            atraso = 0;
         }
 
-        return sucesso;
-    }
+        emprestimo.diasAtraso = atraso;
 
-    remover(id: number): boolean {
-        const emprestimo = this.buscarPorId(id);
-        if (!emprestimo) return false;
+        if(atraso > 0){
+            this.usuarioService.aplicarSuspensao(emprestimo.cpfUsuario, atraso);
+        }
 
-        return this.emprestimoRepository.remover(id);
+        const exemplar = this.estoqueRepository.buscarPorCodigo(emprestimo.codigoExemplar);
+        if(exemplar){
+            exemplar.status = "disponivel";
+        }
+
+        return emprestimo;
     }
 }
