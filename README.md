@@ -8,7 +8,7 @@ Foi construída como parte da avaliação da disciplina de Programação Web do 
 
 ## 🎯 Objetivo
 
-A API permite realizar o controle de **usuários, livros, exemplares (estoque) e empréstimos**, aplicando rigorosamente as regras de negócio de uma biblioteca acadêmica. Tudo isso com **persistência em memória (arrays)**, sem uso de banco de dados.
+A API permite realizar o controle de **usuários, livros, exemplares (estoque) e empréstimos**, aplicando rigorosamente as regras de negócio de uma biblioteca acadêmica.
 
 ---
 
