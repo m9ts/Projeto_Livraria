@@ -52,3 +52,4 @@ app.get("/library/cursos", cursoController.listarCursos.bind(cursoController));
 app.get("/library/categorias-livro", categoriaLivroController.listarCategorias.bind(categoriaLivroController));
 
 app.listen(PORT, () => console.log("Servidor rodando em http://localhost:3090"));
+//adaa
