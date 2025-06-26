@@ -6,7 +6,7 @@ export class CategoriaUsuarioController{
 
     listarCategoria(req: Request, res: Response): void{
         try{
-            const lista = this.categoriaUsuarioService.listarCategoria();
+            const lista = this.categoriaUsuarioService.listarCategorias();
             res.status(200).json(lista);
         } catch(error: unknown){
             let message = "Não foi possível realizar a operação de listagem de categoria de usuários";
