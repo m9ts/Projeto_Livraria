@@ -70,21 +70,21 @@ export class UsuarioController{
         }
     }
 
-    removerUsuario(req: Request, res: Response): void{
-        const cpf = req.params.cpf;
-        try{
-            const usuario = this.usuarioService.removerUsuario(cpf);
-            res.status(204).send();
+    removerUsuario(req: Request, res: Response): void {
+    const cpf = req.params.cpf;
+    try {
+        const mensagem = this.usuarioService.removerUsuario(cpf);
+        res.status(200).json({ mensagem });
+    } catch (error: unknown) {
+        let message: string = "Não foi possível remover usuário";
+        if (error instanceof Error) {
+            message = error.message;
         }
-        catch(error: unknown){
-            let message: string = "Não foi possível remover usuário";
-            if(error instanceof Error){
-                message = error.message;
-            }
-            res.status(400).json({
-                message: message
-            });
-        }
+        res.status(400).json({
+            message: message
+        });
     }
+}
+
 }
 

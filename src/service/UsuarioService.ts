@@ -135,25 +135,27 @@ export class UsuarioService{
         }
     }
 
-    removerUsuario(cpf: string){
-        if(!Usuario.validarCPF(cpf)){
-            throw new Error("CPF Inválido!");
-        }
-
-        const usuario = this.usuarioRepository.buscarUsuarioPorCPF(cpf);
-        if(!usuario){
-            throw new Error("Usuário não encontrado.");
-        }
-
-
-        const emprestimosAtivos = this.emprestimoRepository.emprestimosAbertos(cpf);
-        if(emprestimosAtivos.length > 0){
-            throw new Error("Usuário não pode ser removido: possui empréstimos em aberto.");
-        }
-
-        const sucesso = this.usuarioRepository.removerUsuario(cpf);
-        if (!sucesso) {
-            throw new Error("Erro ao remover usuário.");
-        }
+    removerUsuario(cpf: string): string {
+    if (!Usuario.validarCPF(cpf)) {
+        throw new Error("CPF Inválido!");
     }
+
+    const usuario = this.usuarioRepository.buscarUsuarioPorCPF(cpf);
+    if (!usuario) {
+        throw new Error("Usuário não encontrado.");
+    }
+
+    const emprestimosAtivos = this.emprestimoRepository.emprestimosAbertos(cpf);
+    if (emprestimosAtivos.length > 0) {
+        throw new Error("Usuário não pode ser removido: possui empréstimos em aberto.");
+    }
+
+    const sucesso = this.usuarioRepository.removerUsuario(cpf);
+    if (!sucesso) {
+        throw new Error("Erro ao remover usuário.");
+    }
+
+    return `Usuário com CPF ${cpf} removido com sucesso.`;
+    }
+
 }
